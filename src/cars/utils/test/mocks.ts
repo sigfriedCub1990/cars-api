@@ -11,17 +11,20 @@ export const mockOwner: (name?: string, purchaseDate?: Date) => IOwner = (
 };
 
 export const mockCar: (
+  id?: string,
   firstRegistrationDate?: Date,
   manufacturer?: string,
   owners?: string[],
   price?: number,
 ) => ICar = (
+  id = 'some-mocked-uuid',
   firstRegistrationDate = new Date(),
   manufacturer: '5ed2b34cda96ab0fc8f95dbb',
   owners: ['5ed636a8c91ac95f2f5c9d96'],
   price: 20000000,
 ) => {
   return {
+    id,
     firstRegistrationDate,
     manufacturer,
     owners,
