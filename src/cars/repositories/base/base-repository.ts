@@ -15,13 +15,17 @@ export class BaseRepository<T extends Document> implements IWrite<T>, IRead<T> {
     this.model = model;
   }
 
-  async create(itemData: T): Promise<T> {
+  async create(itemData): Promise<T> {
     const newItem = new this.model(itemData);
     return newItem.save();
   }
 
-  async update(id: string, item: MongooseUpdateQuery<T>): Promise<T> {
-    return this.model.updateOne({ _id: id } as MongooseFilterQuery<T>, item);
+  async update(id: string, fieldsToUpdate): Promise<T> {
+    const updateQuery: MongooseUpdateQuery<T> = fieldsToUpdate;
+    return this.model.updateOne(
+      { _id: id } as MongooseFilterQuery<T>,
+      updateQuery,
+    );
   }
 
   async delete(id: string): Promise<boolean> {
