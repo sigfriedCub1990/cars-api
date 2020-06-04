@@ -95,7 +95,7 @@ export class CarsService {
     for (let i = 0; i < cars.length; i++) {
       let carInstance = cars[i];
       let carDiscount = carInstance.price * 0.2;
-      let newCarPrice = carInstance.price- carDiscount;
+      let newCarPrice = carInstance.price - carDiscount;
       await this.carsRepository.update(carInstance.id, { price: newCarPrice });
     }
   }
