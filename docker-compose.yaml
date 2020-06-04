@@ -2,12 +2,13 @@ version: '3.0'
 
 services:
   db:
-    image: mongo:latest
+    build: ./db
+    container_name: mongodb
     restart: always
     ports:
       - 27017:27017
     environment:
-      MONGO_INITDB_DATABASE: cars-api
+      MONGO_INITDB_DATABASE: carsAPI
   api:
     build: .
     container_name: cars-api
