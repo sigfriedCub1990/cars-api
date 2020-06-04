@@ -84,10 +84,9 @@ export class CarsController {
   ) {
     try {
       const { id } = params;
-      const updatedCar = await this.carsService.updateCar(id, carData);
+      await this.carsService.updateCar(id, carData);
       res.status(HttpStatus.OK).json({
         message: 'Car successfully updated',
-        car: updatedCar,
       });
     } catch (err) {
       throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
