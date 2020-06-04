@@ -13,6 +13,7 @@ import {
 import { CarsService } from './cars.service';
 import { Car } from './schemas';
 import { Response } from 'express';
+import { CarDto } from './car.dto';
 
 export interface CarPayloadParams {
   id: string;
@@ -80,7 +81,7 @@ export class CarsController {
   async updateCar(
     @Res() res: Response,
     @Param() params: CarPayloadParams,
-    @Body() carData: Car,
+    @Body() carData: CarDto,
   ) {
     try {
       const { id } = params;
@@ -94,7 +95,7 @@ export class CarsController {
   }
 
   @Post()
-  async createCar(@Res() res: Response, @Body() carData: Car) {
+  async createCar(@Res() res: Response, @Body() carData: CarDto) {
     try {
       const car = await this.carsService.create(carData);
       return res.status(HttpStatus.OK).json({
