@@ -1,12 +1,12 @@
-import { MongooseUpdateQuery } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 
-import { Car, Owner, Manufacturer } from './schemas';
+import { Car, Owner, Manufacturer, ICar, IManufacturer } from './schemas';
 import { CarsRepository } from './repositories/base/cars-repository';
 import { OwnersRepository } from './repositories/base/owners-repository';
 
 import moment = require('moment');
 import _ = require('lodash');
+import { CarDto } from './car.dto';
 
 @Injectable()
 export class CarsService {
@@ -15,29 +15,78 @@ export class CarsService {
     private ownerRepository: OwnersRepository,
   ) {}
 
-  async create(carData: Car): Promise<Car> {
+  async create(carData: CarDto): Promise<Car> {
     return this.carsRepository.create(carData);
   }
 
-  async updateCar(id: string, carData: Car): Promise<Car> {
-    const mongoData: MongooseUpdateQuery<Car> = carData;
-    return this.carsRepository.update(id, mongoData);
+  async updateCar(id: string, carData: CarDto): Promise<any> {
+    try {
+      await this.carsRepository.update(id, carData);
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
   async removeCar(id: string): Promise<boolean> {
     return this.carsRepository.delete(id);
   }
 
-  async findById(id: string): Promise<Car> {
-    return this.carsRepository.findOne(id);
+  async findById(id: string): Promise<ICar> {
+    try {
+      const car = await this.carsRepository.findOne(id);
+      return {
+        price: car.price,
+        manufacturer: {
+          name: car.manufacturer.name,
+          phone: car.manufacturer.phone,
+          siret: car.manufacturer.siret,
+        },
+        owners: car.owners.map(owner => ({
+          name: owner.name,
+          purchaseDate: owner.purchaseDate,
+        })),
+        firstRegistrationDate: car.firstRegistrationDate,
+      };
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
-  async findManufacturer(id: string): Promise<Manufacturer> {
-    return this.carsRepository.findManufacturer(id);
+  async findManufacturer(id: string): Promise<IManufacturer> {
+    try {
+      const manufacturer: Manufacturer = await this.carsRepository.findManufacturer(
+        id,
+      );
+      return {
+        name: manufacturer.name,
+        phone: manufacturer.phone,
+        siret: manufacturer.siret,
+      };
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
-  async findAll(): Promise<Car[]> {
-    return this.carsRepository.find();
+  async findAll(): Promise<ICar[]> {
+    try {
+      const cars: Car[] = await this.carsRepository.find();
+      return cars.map(car => ({
+        id: car.id,
+        price: car.price,
+        firstRegistrationDate: car.firstRegistrationDate,
+        manufacturer: {
+          name: car.manufacturer.name,
+          phone: car.manufacturer.phone,
+          siret: car.manufacturer.siret,
+        },
+        owners: car.owners.map(owner => ({
+          name: owner.name,
+          purchaseDate: owner.purchaseDate,
+        })),
+      }));
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
   async updateOwnersAndApplyDiscounts() {
