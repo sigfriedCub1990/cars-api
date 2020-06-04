@@ -1,11 +1,13 @@
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Simple API with NestJS and MongoDB.
 
 ## Installation
 
 ```bash
 $ yarn install
+$ docker-compose up --build -d db
+$ yarn start:dev
 ```
 
 ## Running the app
