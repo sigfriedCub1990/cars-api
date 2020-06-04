@@ -51,7 +51,7 @@ export class CarsController {
     try {
       const { id } = params;
       const car = await this.carsService.findById(id);
-      return res.status(200).json(car);
+      return res.status(HttpStatus.OK).json(car);
     } catch (err) {
       throw new HttpException(err, HttpStatus.NOT_FOUND);
     }
@@ -98,7 +98,7 @@ export class CarsController {
   async createCar(@Res() res: Response, @Body() carData: Car) {
     try {
       const car = await this.carsService.create(carData);
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         message: 'Car successfully created',
         id: car.id,
       });
