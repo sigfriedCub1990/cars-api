@@ -14,8 +14,7 @@ export class CarsRepository extends BaseRepository<Car> {
   async find(searchParams?: Object): Promise<Car[]> {
     return this.carModel
       .find(searchParams)
-      .populate('manufacturer')
-      .populate('owners')
+      .populate('manufacturer owners')
       .exec();
   }
 
