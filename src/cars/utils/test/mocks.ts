@@ -10,28 +10,6 @@ export const mockOwner: (name?: string, purchaseDate?: Date) => IOwner = (
   };
 };
 
-export const mockCar: (
-  id?: string,
-  firstRegistrationDate?: Date,
-  manufacturer?: string,
-  owners?: string[],
-  price?: number,
-) => ICar = (
-  id = 'some-mocked-uuid',
-  firstRegistrationDate = new Date(),
-  manufacturer: '5ed2b34cda96ab0fc8f95dbb',
-  owners: ['5ed636a8c91ac95f2f5c9d96'],
-  price: 20000000,
-) => {
-  return {
-    id,
-    firstRegistrationDate,
-    manufacturer,
-    owners,
-    price,
-  };
-};
-
 export const mockManufacturer: (
   phone?: string,
   name?: string,
@@ -45,5 +23,40 @@ export const mockManufacturer: (
     phone,
     name,
     siret,
+  };
+};
+
+export const mockCar: (
+  id?: string,
+  firstRegistrationDate?: Date,
+  manufacturer?: IManufacturer,
+  owners?: IOwner[],
+  price?: number,
+) => ICar = (
+  id = 'some-mocked-uuid',
+  firstRegistrationDate = new Date(),
+  manufacturer = {
+    name: 'Moskvich',
+    phone: '+7 202 234234',
+    siret: 200,
+  },
+  owners = [
+    {
+      name: 'Iosif Stalin',
+      purchaseDate: new Date('1944-05-05'),
+    },
+    {
+      name: 'Rick Deckard',
+      purchaseDate: new Date('2020-05-05'),
+    },
+  ],
+  price = 20000000,
+) => {
+  return {
+    id,
+    firstRegistrationDate,
+    manufacturer,
+    owners,
+    price,
   };
 };
