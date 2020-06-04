@@ -1,11 +1,12 @@
 import * as mongoose from 'mongoose';
-import { Manufacturer, Owner } from '../schemas';
+import { IOwner, Owner } from './owner.schema';
+import { IManufacturer, Manufacturer } from './manufacturer.schema';
 
 export interface ICar {
   readonly price: number;
-  readonly manufacturer: string;
+  readonly manufacturer: IManufacturer;
   readonly firstRegistrationDate: Date;
-  readonly owners: string[];
+  readonly owners: IOwner[];
 }
 
 export class Car extends mongoose.Document {
