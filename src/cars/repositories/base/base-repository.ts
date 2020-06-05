@@ -40,6 +40,6 @@ export class BaseRepository<T extends Document> implements IWrite<T>, IRead<T> {
   }
 
   async findOne(id: string): Promise<T> {
-    return this.model.findOne({ _id: id } as MongooseFilterQuery<T>).exec();
+    return this.model.findById(id).exec();
   }
 }
