@@ -2,21 +2,72 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
+import * as mongoose from 'mongoose';
+
+const createFakeData = async connection => {
+  const [ownerId, manufacturerId] = await Promise.all([
+    new connection.models.Owner({
+      name: 'John Carmack',
+      firstPurchaseDate: new Date(),
+    }).save(),
+    new connection.models.Manufacturer({
+      name: 'Scuderia Ferrari',
+      phone: '+4 202 234234',
+      siret: 200,
+    }).save(),
+  ]);
+
+  const { id: carId } = await connection.models
+    .Car({
+      firstRegistrationDate: new Date(),
+      manufacturer: manufacturerId,
+      owners: [ownerId],
+      price: 500000,
+    })
+    .save();
+
+  return {
+    carId,
+    ownerId,
+    manufacturerId,
+  };
+};
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
+  let connection;
   let createdCarId: string;
+  let ownerId: string;
+  let manufacturerId: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    connection = await mongoose.connect('mongodb://localhost/carsAPI', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    const {
+      carId: car,
+      ownerId: owner,
+      manufacturerId: manufacturer,
+    } = await createFakeData(connection);
+
+    createdCarId = car;
+    ownerId = owner;
+    manufacturerId = manufacturer;
+
     await app.init();
   });
 
-  afterAll(async () => app.close());
+  afterAll(async () => {
+    app.close();
+    mongoose.connection.close();
+  });
 
   it('/ (GET)', () => {
     return request(app.getHttpServer())
@@ -30,16 +81,15 @@ describe('AppController (e2e)', () => {
       .post('/cars')
       .send({
         price: 200000,
-        manufacturer: '5ed2b34cda96ab0fc8f95dbb',
+        manufacturer: manufacturerId,
         firstRegistrationDate: '2014-05-20',
-        owners: ['5ed2b451d69ad9583ec00b2e'],
+        owners: [ownerId],
       })
       .expect(200)
       .expect(res => {
         const { id, message } = res.body;
         expect(id).toHaveLength(24);
         expect(message).toBe('Car successfully created');
-        createdCarId = id;
       });
   });
 
@@ -63,9 +113,10 @@ describe('AppController (e2e)', () => {
       .expect(404);
   });
 
-  it('/cars/id (GET)', () => {
+  it('/cars/id (GET)', async () => {
+    const { carId } = await createFakeData(connection);
     return request(app.getHttpServer())
-      .get(`/cars/${createdCarId}`)
+      .get(`/cars/${carId}`)
       .expect(200);
   });
 
