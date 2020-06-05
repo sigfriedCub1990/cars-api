@@ -6,7 +6,7 @@ import { CarsRepository } from './repositories/base/cars-repository';
 import { OwnersRepository } from './repositories/base/owners-repository';
 import { getModelToken } from '@nestjs/mongoose';
 
-import { mockCar, mockOwner } from '../cars/utils/test/mocks';
+import { mockCar, mockOwner, mockManufacturer } from '../cars/utils/test/mocks';
 import { Response } from 'express';
 
 const mockedCarsList = [
@@ -14,15 +14,18 @@ const mockedCarsList = [
   mockCar(
     'mocked-uuid-2',
     new Date('1984-05-29'),
-    'General Motors',
-    ['Steve Jobs', 'Paul McCartney'],
+    mockManufacturer(),
+    [mockOwner(), mockOwner('Paul McCartney')],
     200000,
   ),
   mockCar(
     'mocked-uuid-2',
     new Date('1984-05-29'),
-    'Alfa Romeo',
-    ['Steve Wozniak', 'George Harrison'],
+    mockManufacturer(),
+    [
+      mockOwner('Steve Wozniak', new Date('1990-04-27')),
+      mockOwner('George Harrison', new Date('1972-04-05')),
+    ],
     200000,
   ),
 ];
