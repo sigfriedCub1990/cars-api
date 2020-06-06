@@ -1,0 +1,339 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Cars API",
+    "description": "This is a simple Cars API made with NestJS + MongoDB",
+    "contact": {
+      "name": "sigfried",
+      "url": "https://sigfried.xyz",
+      "email": "sigfriedcub1990@yandex.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    },
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/cars": {
+      "get": {
+        "description": "Get all existing cars",
+        "responses": {
+          "200": {
+            "description": "Returns a list of existing cars",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Car"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new Car",
+        "responses": {
+          "200": {
+            "description": "Returns created Car ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "successfully-created-car": {
+                    "$ref": "#/components/schemas/Car/example/successfully-created-car"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "manufacturer",
+                  "owners",
+                  "registrationDate"
+                ],
+                "properties": {
+                  "registrationDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "manufacturer": {
+                    "type": "string"
+                  },
+                  "owners": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cars/{carId}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Get a Car",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Car"
+                },
+                "example": {
+                  "$ref": "#/components/schemas/Car/example/car-details"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "description": "Update a Car",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Car successfully updated"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "Data to be sent in order to update a `Car`",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "firstRegistrationDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "owners": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "manufacturer": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Remove a Car",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Car successfully removed"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "carId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/cars/{carId}/manufacturer": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Gets a Car Manufacturer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Manufacturer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "carId",
+          "required": true,
+          "in": "path",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/cars/procedure": {
+      "description": "Apply 20% discount & remove old owners",
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Everything went O.K",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "message": "Operation succeeded"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Car": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "float"
+          },
+          "manufacturer": {
+            "$ref": "#/components/schemas/Manufacturer"
+          },
+          "owners": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Owner"
+            }
+          }
+        },
+        "example": {
+          "successfully-created-car": {
+            "value": {
+              "id": "5ed92e1edb40b951d5b732b3"
+            }
+          },
+          "car-details": {
+            "value": {
+              "firstRegistrationDate": "2018-05-20T00:00:00.000Z",
+              "id": "5ed91b77041beb60bf8426f2",
+              "manufacturer": {
+                "name": "Tesla, Inc",
+                "phone": "+1 (202) 444 4445",
+                "siret": 200
+              },
+              "owners": [
+                {
+                  "name": "Elon Musk",
+                  "purchaseDate": "2018-05-19T00:00:00.000Z"
+                }
+              ],
+              "price": 160000
+            }
+          },
+          "create-car-payload": {
+            "value": {
+              "firstRegistrationDate": "2018-05-20",
+              "manufacturer": "some-mongod-objectid",
+              "owners": [
+                "some-mongod-objectid"
+              ],
+              "price": 160000
+            }
+          }
+        }
+      },
+      "Manufacturer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "siret": {
+            "type": "integer",
+            "format": "integer"
+          },
+          "phone": {
+            "type": "string",
+            "format": "string"
+          }
+        },
+        "example": {
+          "name": "Scuderia Ferrari",
+          "siret": 200,
+          "phone": "+1 (202) 4534 344"
+        }
+      },
+      "Owner": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "example": {
+          "name": "John Carmack",
+          "purchaseDate": "1990-04-27"
+        }
+      }
+    }
+  }
+}
