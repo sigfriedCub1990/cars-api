@@ -11,7 +11,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CarsService } from './cars.service';
-import { Car } from './schemas';
 import { Response } from 'express';
 import { CarDto } from './car.dto';
 
