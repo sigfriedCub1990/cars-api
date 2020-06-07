@@ -1,13 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { CarsController } from './cars.controller';
 import { CarsService } from './cars.service';
-import { Car, Owner } from './schemas';
 import { CarsRepository } from './repositories/base/cars-repository';
 import { OwnersRepository } from './repositories/base/owners-repository';
 import { getModelToken } from '@nestjs/mongoose';
 
 import { mockCar, mockOwner, mockManufacturer } from '../cars/utils/test/mocks';
 import { Response } from 'express';
+import { createMock } from '@golevelup/ts-jest';
 
 const mockedCarsList = [
   mockCar(),
@@ -30,14 +30,16 @@ const mockedCarsList = [
   ),
 ];
 
-// Simply mocking the *@Res res: Response dependency*
-const response = {
-  status: code => code,
-  json: json => ({ ...json }),
+const mockResponseObject = () => {
+  return createMock<Response>({
+    json: jest.fn().mockReturnThis(),
+    status: jest.fn().mockReturnThis(),
+  });
 };
 
 describe('Cars Controller', () => {
   let carsController: CarsController;
+  let carsService: CarsService;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -74,36 +76,47 @@ describe('Cars Controller', () => {
     }).compile();
 
     carsController = moduleRef.get<CarsController>(CarsController);
+    carsService = moduleRef.get<CarsService>(CarsService);
   });
 
   afterEach(() => jest.clearAllMocks());
 
   it('should return an array of Cars', async () => {
+    const response = mockResponseObject();
+
     jest
-      .spyOn(carsController, 'getCars')
+      .spyOn(carsService, 'findAll')
       .mockImplementation(jest.fn().mockResolvedValueOnce(mockedCarsList));
 
-    const resultList = await carsController.getCars(response as Response);
+    await carsController.getCars(response);
 
-    expect(resultList).toBe(mockedCarsList);
+    expect(response.json).toHaveBeenCalledTimes(1);
+    expect(response.json).toHaveBeenCalledWith({ cars: mockedCarsList });
+    expect(response.status).toHaveBeenCalledTimes(1);
+    expect(response.status).toHaveBeenCalledWith(200);
   });
 
   it('should return a Car', async () => {
+    const response = mockResponseObject();
+
     jest
-      .spyOn(carsController, 'getCar')
+      .spyOn(carsService, 'findById')
       .mockImplementation(jest.fn().mockResolvedValueOnce(mockedCarsList[0]));
 
-    const resultList = await carsController.getCar(response as Response, {
+    await carsController.getCar(response, {
       id: 'some-mocked-uuid',
     });
 
-    expect(resultList).toBe(mockedCarsList[0]);
+    expect(response.json).toHaveBeenCalledTimes(1);
+    expect(response.json).toHaveBeenCalledWith(mockedCarsList[0]);
+    expect(response.status).toHaveBeenCalledTimes(1);
+    expect(response.status).toHaveBeenCalledWith(200);
   });
 
   it('should return a Car manufacturer', async () => {
     const mockedCarOwner = mockOwner();
     jest
-      .spyOn(carsController, 'getCarManufacturer')
+      .spyOn(carsService, 'findManufacturer')
       .mockImplementation(jest.fn().mockResolvedValueOnce(mockedCarOwner));
 
     const manufacturer = await carsController.getCarManufacturer({
@@ -114,17 +127,17 @@ describe('Cars Controller', () => {
   });
 
   it('should delete a Car', async () => {
-    jest.spyOn(carsController, 'deleteCar').mockImplementation(
-      jest.fn().mockResolvedValueOnce({
-        message: 'Car removed',
-      }),
-    );
+    const response = mockResponseObject();
 
-    const result = await carsController.deleteCar(response as Response, {
+    jest
+      .spyOn(carsService, 'removeCar')
+      .mockImplementation(jest.fn().mockResolvedValueOnce(true));
+
+    await carsController.deleteCar(response, {
       id: 'some-mocked-uuid',
     });
 
-    expect(result).toStrictEqual({
+    expect(response.json).toHaveBeenCalledWith({
       message: 'Car removed',
     });
   });
